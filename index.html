@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoodMorph</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: 'var(--color-primary)',
+              surface: 'var(--color-surface)',
+              bgMain: 'var(--color-bg)',
+              energyHigh: 'var(--color-energy-high)',
+              energyLow: 'var(--color-energy-low)',
+              textMain: 'var(--color-text)',
+              glassBorder: 'rgba(255, 255, 255, 0.1)',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'], 
+              fa: ['Vazirmatn', 'sans-serif'], 
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.3s ease-out',
+              'fade-in-up': 'fadeInUp 0.3s ease-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          },
+        },
+      };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Vazirmatn:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        /* Light Mode Defaults */
+        --color-bg: #F8F9FA;
+        --color-surface: #FFFFFF;
+        --color-primary: #6366F1;
+        --color-energy-high: #10B981;
+        --color-energy-low: #F43F5E;
+        --color-text: #1F2937;
+      }
+      
+      .dark {
+        /* Dark Mode Overrides */
+        --color-bg: #0F111A;
+        --color-surface: #1A1D2E;
+        --color-primary: #818CF8;
+        --color-energy-high: #34D399;
+        --color-energy-low: #FB7185;
+        --color-text: #E2E8F0;
+      }
+
+      body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        transition: background-color 0.5s ease, color 0.5s ease;
+      }
+      
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-surface); 
+        border: 1px solid var(--color-bg);
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-primary); 
+      }
+
+      /* DatePicker Customization Refined */
+      .rmdp-container {
+        width: 100%;
+      }
+      
+      .rmdp-wrapper {
+        background-color: var(--color-surface) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        border-radius: 1rem !important;
+        overflow: hidden;
+      }
+      
+      /* Dark mode specific adjustments for the popup */
+      .dark .rmdp-wrapper {
+        background-color: #1A1D2E !important; /* surface color */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      }
+
+      .rmdp-top-class {
+        background-color: transparent !important;
+      }
+
+      .rmdp-calendar {
+        background-color: transparent !important;
+      }
+
+      .rmdp-day-picker {
+        background-color: transparent !important;
+      }
+
+      .rmdp-panel-body li {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+      }
+      
+      .rmdp-day span {
+        transition: all 0.2s;
+        border-radius: 0.5rem !important;
+      }
+
+      .rmdp-day.rmdp-selected span:not(.highlight) {
+        background-color: var(--color-primary) !important;
+        box-shadow: 0 4px 12px var(--color-primary-transparent, rgba(99, 102, 241, 0.4));
+      }
+
+      .rmdp-day:not(.rmdp-disabled):not(.rmdp-day-hidden) span:hover {
+        background-color: var(--color-primary) !important;
+        opacity: 0.8;
+      }
+
+      .rmdp-arrow-container:hover {
+        background-color: var(--color-bg) !important;
+        color: var(--color-primary) !important;
+      }
+      
+      .rmdp-arrow {
+        border-color: var(--color-text) !important;
+      }
+      
+      .rmdp-header-values {
+        color: var(--color-primary) !important;
+        font-weight: bold;
+      }
+      
+      .rmdp-week-day {
+        color: var(--color-text) !important;
+        opacity: 0.6;
+        font-weight: 600;
+      }
+      
+      .rmdp-day {
+        color: var(--color-text) !important;
+      }
+      
+      .rmdp-day.rmdp-deactive {
+        color: var(--color-text) !important;
+        opacity: 0.3;
+      }
+      
+      .rmdp-day.rmdp-today span {
+        background-color: var(--color-energy-high) !important;
+        color: #fff !important;
+      }
+
+      /* Hide the shadow wrapper if present */
+      .rmdp-shadow {
+        box-shadow: none !important;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/": "https://esm.sh/react@18.3.1/",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+    "recharts": "https://esm.sh/recharts@2.12.7?external=react,react-dom",
+    "@google/genai": "https://esm.sh/@google/genai",
+    "lucide-react": "https://esm.sh/lucide-react@0.378.0?external=react,react-dom",
+    "date-fns": "https://esm.sh/date-fns@3.6.0",
+    "react-multi-date-picker": "https://esm.sh/react-multi-date-picker@4.5.2?external=react,react-dom",
+    "react-date-object": "https://esm.sh/react-date-object@2.1.9",
+    "react-date-object/calendars/persian": "https://esm.sh/react-date-object@2.1.9/calendars/persian",
+    "react-date-object/locales/persian_fa": "https://esm.sh/react-date-object@2.1.9/locales/persian_fa",
+    "react-date-object/": "https://esm.sh/react-date-object@2.1.9/"
+  }
+}
+</script>
+</head>
+  <body class="font-sans dark:font-fa">
+    <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
+  </body>
+</html>
