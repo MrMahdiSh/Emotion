@@ -1,3 +1,4 @@
+
 export const translations = {
   en: {
     title: "MoodMorph",
@@ -58,7 +59,17 @@ export const translations = {
     step1Title: "What happened?",
     step2Title: "How did you feel?",
     step3Title: "How did you react?",
-    step4Title: "What was the result?"
+    step4Title: "What was the result?",
+    // Guide
+    guideTitle: "How to start?",
+    guideStep1Title: "Log the Trigger",
+    guideStep1Desc: "Type what happened in the top input bar.",
+    guideStep2Title: "Express Feelings",
+    guideStep2Desc: "Choose your emotion and intensity level.",
+    guideStep3Title: "Reflect on Actions",
+    guideStep3Desc: "Record how you reacted and the result.",
+    guideStep4Title: "AI Analysis",
+    guideStep4Desc: "Get insights after logging a few entries."
   },
   fa: {
     title: "مود‌مورف",
@@ -119,6 +130,16 @@ export const translations = {
     step1Title: "چه اتفاقی افتاد؟",
     step2Title: "چه احساسی داشتی؟",
     step3Title: "واکنشت چی بود؟",
-    step4Title: "نتیجه‌اش چی شد؟"
+    step4Title: "نتیجه‌اش چی شد؟",
+    // Guide
+    guideTitle: "چگونه شروع کنیم؟",
+    guideStep1Title: "ثبت رویداد",
+    guideStep1Desc: "آنچه اتفاق افتاده را در کادر بالا بنویسید.",
+    guideStep2Title: "بیان احساسات",
+    guideStep2Desc: "نوع احساس و شدت آن را انتخاب کنید.",
+    guideStep3Title: "بازبینی واکنش",
+    guideStep3Desc: "واکنش خود و نتیجه آن را ثبت کنید.",
+    guideStep4Title: "تحلیل هوشمند",
+    guideStep4Desc: "پس از ثبت چند مورد، از هوش مصنوعی کمک بگیرید."
   }
 };

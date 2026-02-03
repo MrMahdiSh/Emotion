@@ -1,7 +1,7 @@
 import React from 'react';
 import { JournalEntry, EmotionType, EmotionLabels } from '../types';
 import GlassCard from './GlassCard';
-import { Trash2 } from 'lucide-react';
+import { Trash2, PenLine, Smile, GitCommit, Sparkles } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 
 interface JournalListProps {
@@ -24,9 +24,29 @@ const JournalList: React.FC<JournalListProps> = ({ entries, onDelete }) => {
   const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (sortedEntries.length === 0) {
+    const steps = [
+      { icon: <PenLine size={24} />, title: t('guideStep1Title'), desc: t('guideStep1Desc'), color: "text-blue-400 bg-blue-500/10" },
+      { icon: <Smile size={24} />, title: t('guideStep2Title'), desc: t('guideStep2Desc'), color: "text-green-400 bg-green-500/10" },
+      { icon: <GitCommit size={24} className="rotate-90" />, title: t('guideStep3Title'), desc: t('guideStep3Desc'), color: "text-amber-400 bg-amber-500/10" },
+      { icon: <Sparkles size={24} />, title: t('guideStep4Title'), desc: t('guideStep4Desc'), color: "text-purple-400 bg-purple-500/10" },
+    ];
+
     return (
-      <div className="text-center p-8 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-        <p className="text-white font-medium text-lg">{t('noEntries')}</p>
+      <div className="flex flex-col items-center justify-center py-8 animate-fade-in">
+        <h3 className="text-2xl font-bold text-textMain mb-8 opacity-80">{t('guideTitle')}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+          {steps.map((step, index) => (
+            <div key={index} className="bg-surface border border-slate-200 dark:border-white/5 rounded-2xl p-5 flex items-start gap-4 transition-all hover:scale-[1.02] hover:bg-white/50 dark:hover:bg-white/5 shadow-sm">
+               <div className={`p-3 rounded-xl ${step.color}`}>
+                 {step.icon}
+               </div>
+               <div>
+                 <h4 className="font-bold text-textMain mb-1">{step.title}</h4>
+                 <p className="text-sm text-textMain/60 leading-relaxed">{step.desc}</p>
+               </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
