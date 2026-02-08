@@ -1,13 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Moon, Sun, Languages, Download, Upload } from 'lucide-react';
+import { Settings, Moon, Sun, Languages, Download, Upload, User, Users, Stethoscope, Trash2 } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import { UserProfile } from '../types';
 
 interface SettingsToolboxProps {
     onExport: () => void;
     onImportClick: () => void;
+    onDoctorExport: () => void;
+    onDeleteData: () => void;
+    onOpenProfileManager: () => void;
+    currentProfile: UserProfile | null;
 }
 
-const SettingsToolbox: React.FC<SettingsToolboxProps> = ({ onExport, onImportClick }) => {
+const SettingsToolbox: React.FC<SettingsToolboxProps> = ({ 
+    onExport, 
+    onImportClick, 
+    onDoctorExport,
+    onDeleteData,
+    onOpenProfileManager,
+    currentProfile,
+}) => {
     const { t, theme, toggleTheme, language, setLanguage, dir } = useApp();
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -23,8 +35,6 @@ const SettingsToolbox: React.FC<SettingsToolboxProps> = ({ onExport, onImportCli
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // In RTL (Persian), the button is on the left, so we anchor the popup to the left (left-0).
-    // In LTR (English), the button is on the right, so we anchor to the right (right-0).
     const alignmentClass = dir === 'rtl' ? 'left-0 origin-top-left' : 'right-0 origin-top-right';
 
     return (
@@ -38,8 +48,40 @@ const SettingsToolbox: React.FC<SettingsToolboxProps> = ({ onExport, onImportCli
             </button>
 
             {isOpen && (
-                <div className={`absolute top-14 z-50 w-56 bg-surface border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 animate-fade-in-up ${alignmentClass}`}>
+                <div className={`absolute top-14 z-50 w-64 bg-surface border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 animate-fade-in-up ${alignmentClass}`}>
                     
+                    {/* Profile Info */}
+                    {currentProfile && (
+                        <div className="px-3 py-2 mb-1 border-b border-slate-200 dark:border-white/5">
+                            <p className="text-xs text-textMain/50 uppercase tracking-wider mb-1">{t('currentUser')}</p>
+                            <div className="flex items-center gap-2 text-primary font-bold">
+                                <User size={16} />
+                                <span className="truncate">{currentProfile.name}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Profile Manager Button */}
+                    <button 
+                        onClick={() => { onOpenProfileManager(); setIsOpen(false); }}
+                        className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-bgMain text-textMain/80 hover:text-primary transition-all text-sm font-medium"
+                    >
+                        <Users size={18} />
+                        {t('manageProfiles')}
+                    </button>
+
+                    <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
+
+                    <button 
+                        onClick={() => { onDoctorExport(); setIsOpen(false); }}
+                        className="flex items-center gap-3 w-full p-3 rounded-xl bg-gradient-to-r from-primary/10 to-transparent hover:bg-primary/20 text-primary transition-all text-sm font-bold"
+                    >
+                        <Stethoscope size={18} />
+                        {t('exportDoctorBtn')}
+                    </button>
+
+                    <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
+
                     <button 
                         onClick={() => { toggleTheme(); }}
                         className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-bgMain text-textMain/80 hover:text-primary transition-all text-sm font-medium"
@@ -57,14 +99,6 @@ const SettingsToolbox: React.FC<SettingsToolboxProps> = ({ onExport, onImportCli
                     </button>
 
                     <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
-
-                    <button 
-                        onClick={() => { onExport(); setIsOpen(false); }}
-                        className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-bgMain text-textMain/80 hover:text-energyHigh transition-all text-sm font-medium"
-                    >
-                        <Download size={18} />
-                        {t('exportBtn')}
-                    </button>
                     
                     <button 
                         onClick={() => { onImportClick(); setIsOpen(false); }}
@@ -72,6 +106,25 @@ const SettingsToolbox: React.FC<SettingsToolboxProps> = ({ onExport, onImportCli
                     >
                         <Upload size={18} />
                         {t('importBtn')}
+                    </button>
+
+                    <button 
+                        onClick={() => { onExport(); setIsOpen(false); }}
+                        className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-bgMain text-textMain/80 hover:text-energyHigh transition-all text-sm font-medium opacity-60"
+                        title="Legacy JSON format"
+                    >
+                        <Download size={18} />
+                        {t('exportBtn')} (Legacy)
+                    </button>
+                    
+                     <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
+
+                     <button 
+                        onClick={() => { onDeleteData(); setIsOpen(false); }}
+                        className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-500/10 text-red-500 transition-all text-sm font-bold"
+                    >
+                        <Trash2 size={18} />
+                        {t('deleteDataBtn')}
                     </button>
                 </div>
             )}

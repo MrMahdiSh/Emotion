@@ -1,12 +1,13 @@
 import React from 'react';
 import { JournalEntry, EmotionType, EmotionLabels } from '../types';
 import GlassCard from './GlassCard';
-import { Trash2, PenLine, Smile, GitCommit, Sparkles } from 'lucide-react';
+import { Trash2, PenLine, Smile, GitCommit, Sparkles, Pencil } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 
 interface JournalListProps {
   entries: JournalEntry[];
   onDelete: (id: string) => void;
+  onEdit: (entry: JournalEntry) => void;
 }
 
 const getEmotionColor = (emotion: EmotionType) => {
@@ -19,7 +20,7 @@ const getEmotionColor = (emotion: EmotionType) => {
   }
 };
 
-const JournalList: React.FC<JournalListProps> = ({ entries, onDelete }) => {
+const JournalList: React.FC<JournalListProps> = ({ entries, onDelete, onEdit }) => {
   const { t, language, dir } = useApp();
   const sortedEntries = [...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -55,13 +56,22 @@ const JournalList: React.FC<JournalListProps> = ({ entries, onDelete }) => {
     <div className="space-y-4">
       {sortedEntries.map((entry) => (
         <GlassCard key={entry.id} className="relative group transition-all hover:bg-white/90 dark:hover:bg-white/10">
-          <button 
-            onClick={() => onDelete(entry.id)}
-            className={`absolute top-4 ${dir === 'rtl' ? 'left-4' : 'right-4'} text-slate-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity`}
-            title={t('delete')}
-          >
-            <Trash2 size={18} />
-          </button>
+          <div className={`absolute top-4 ${dir === 'rtl' ? 'left-4' : 'right-4'} flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity`}>
+             <button 
+              onClick={() => onEdit(entry)}
+              className="text-slate-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary"
+              title={t('edit')}
+            >
+              <Pencil size={18} />
+            </button>
+            <button 
+              onClick={() => onDelete(entry.id)}
+              className="text-slate-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400"
+              title={t('delete')}
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-4 mb-3 border-b border-slate-200 dark:border-glassBorder pb-3">
             <div className={`px-3 py-1 rounded-full text-sm font-bold border w-fit flex items-center gap-2 ${getEmotionColor(entry.emotion)}`}>

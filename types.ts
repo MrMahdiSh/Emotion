@@ -1,3 +1,4 @@
+
 export enum EmotionType {
   Angry = "Angry",
   Happy = "Happy",
@@ -58,4 +59,18 @@ export interface DailyMoodData {
 export interface EmotionFrequencyData {
   name: string;
   value: number;
+}
+
+// User Profile Types
+export interface UserProfile {
+  id: string;
+  name: string;
+  created: string;
+}
+
+export interface ExportPackage {
+  user: UserProfile;
+  entries: JournalEntry[];
+  exportedAt: string;
+  appVersion: string;
 }

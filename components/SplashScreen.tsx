@@ -47,7 +47,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             </h1>
             <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-white/20 to-transparent mt-4 mb-4 rounded-full" />
             <p className="text-lg text-slate-400 font-light tracking-[0.4em] uppercase opacity-0 animate-[slideUp_1s_ease-out_0.6s_forwards]">
-                Your Mood Mentor
+                Mood Assistant
             </p>
         </div>
 

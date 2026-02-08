@@ -12,13 +12,15 @@ import {
   CartesianGrid,
   ZAxis
 } from 'recharts';
-import { addDays, subDays, parseISO, isAfter } from 'date-fns';
+import { addDays, subDays, isAfter } from 'date-fns';
 import { JournalEntry, EmotionLabels, EmotionType } from '../types';
 import GlassCard from './GlassCard';
+import EntryDetailModal from './EntryDetailModal';
 import { useApp } from '../contexts/AppContext';
 
 interface StatsProps {
   entries: JournalEntry[];
+  onEdit?: (entry: JournalEntry) => void;
 }
 
 // Helper to get hex based on theme
@@ -78,21 +80,31 @@ const getDotColor = (emotion: EmotionType, palette: any) => {
     }
 };
 
-const Stats: React.FC<StatsProps> = ({ entries }) => {
-  const { t, language, theme } = useApp();
+const Stats: React.FC<StatsProps> = ({ entries, onEdit }) => {
+  const { t, language, theme, dir } = useApp();
   const palette = usePalette(theme);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('7d');
+  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
 
-  // Process data for Emotion Frequency (Pie Chart)
+  // Process data for Emotion Frequency (Pie Chart) with avg intensity
   const emotionData = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const stats: Record<string, { count: number, totalIntensity: number }> = {};
+    
     entries.forEach(entry => {
-      counts[entry.emotion] = (counts[entry.emotion] || 0) + 1;
+      if (!stats[entry.emotion]) {
+         stats[entry.emotion] = { count: 0, totalIntensity: 0 };
+      }
+      stats[entry.emotion].count += 1;
+      stats[entry.emotion].totalIntensity += entry.intensity;
     });
-    return Object.entries(counts).map(([name, value]) => ({ 
+
+    return Object.entries(stats).map(([emotionKey, data]) => ({ 
+      // Display Name
       // @ts-ignore
-      name: EmotionLabels[language][name] || name, 
-      value 
+      name: EmotionLabels[language][emotionKey] || emotionKey, 
+      value: data.totalIntensity, // Use total intensity for chart slice size (Weighted by intensity)
+      count: data.count, // Pass count for display
+      avgIntensity: data.totalIntensity / data.count
     }));
   }, [entries, language]);
 
@@ -105,7 +117,7 @@ const Stats: React.FC<StatsProps> = ({ entries }) => {
     if (timeRange === '30d') cutoffDate = subDays(now, 30);
 
     const filtered = cutoffDate 
-      ? entries.filter(e => isAfter(parseISO(e.date), cutoffDate))
+      ? entries.filter(e => isAfter(new Date(e.date), cutoffDate))
       : entries;
 
     return filtered.map(e => ({
@@ -118,10 +130,17 @@ const Stats: React.FC<StatsProps> = ({ entries }) => {
   // Custom Tooltip for Pie Chart
   const PieTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
       return (
         <div className="bg-surface border border-slate-200 dark:border-white/5 p-2 rounded shadow-xl text-xs" dir={language === 'fa' ? 'rtl' : 'ltr'}>
           <p className="font-bold text-textMain">
-             {payload[0].name}: {payload[0].value}
+             {data.name}
+          </p>
+          <p className="text-textMain/70 text-[10px]">
+             {t('count')}: {data.count}
+          </p>
+          <p className="text-textMain/70 text-[10px]">
+             {t('avgIntensity')}: {data.avgIntensity.toFixed(1)}/10
           </p>
         </div>
       );
@@ -142,8 +161,11 @@ const Stats: React.FC<StatsProps> = ({ entries }) => {
              <span className="opacity-60 font-normal mx-1 text-[10px]">{new Date(entry.date).toLocaleDateString(language === 'fa' ? 'fa-IR' : 'en-US')}</span>
            </div>
            <div className="space-y-1">
-              <p><span className="opacity-70">{t('triggerTitle')}:</span> <span className="text-textMain/90">{entry.action}</span></p>
+              <p><span className="opacity-70">{t('triggerTitle')}:</span> <span className="text-textMain/90 line-clamp-2">{entry.action}</span></p>
               <p><span className="opacity-70">{t('intensityLabel')}:</span> {entry.intensity}/10</p>
+           </div>
+           <div className="mt-2 text-[10px] text-primary font-bold">
+               {language === 'fa' ? 'برای مشاهده کلیک کنید' : 'Click to view details'}
            </div>
         </div>
       );
@@ -171,9 +193,17 @@ const Stats: React.FC<StatsProps> = ({ entries }) => {
                         fill={palette.primary}
                         dataKey="value"
                     >
-                        {emotionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={palette.chartColors[index % palette.chartColors.length]} />
-                        ))}
+                        {emotionData.map((entry, index) => {
+                            const opacity = 0.3 + (entry.avgIntensity / 10) * 0.7;
+                            return (
+                                <Cell 
+                                    key={`cell-${index}`} 
+                                    fill={palette.chartColors[index % palette.chartColors.length]} 
+                                    fillOpacity={opacity}
+                                    stroke="transparent"
+                                />
+                            );
+                        })}
                     </Pie>
                     <Tooltip content={<PieTooltip />} />
                     </PieChart>
@@ -226,16 +256,38 @@ const Stats: React.FC<StatsProps> = ({ entries }) => {
                     />
                     <ZAxis type="number" dataKey="z" range={[50, 50]} />
                     <Tooltip content={<ScatterTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-                    <Scatter data={timelineData} shape="circle">
-                      {timelineData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={getDotColor(entry.entry.emotion, palette)} />
-                      ))}
+                    <Scatter 
+                        data={timelineData} 
+                        shape="circle" 
+                        onClick={(e) => {
+                             if(e && e.payload && e.payload.entry) {
+                                setSelectedEntry(e.payload.entry);
+                             }
+                        }}
+                    >
+                      {timelineData.map((entry, index) => {
+                        return (
+                           <Cell 
+                             key={`cell-${index}`} 
+                             fill={getDotColor(entry.entry.emotion, palette)} 
+                             style={{ cursor: 'pointer' }}
+                           />
+                        );
+                      })}
                     </Scatter>
                 </ScatterChart>
                 </ResponsiveContainer>
             )}
         </div>
       </GlassCard>
+
+      {/* Modal for Selected Entry */}
+      <EntryDetailModal 
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+        onEdit={onEdit}
+      />
+
     </div>
   );
 };
