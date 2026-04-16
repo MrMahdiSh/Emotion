@@ -238,7 +238,7 @@ const MainApp: React.FC = () => {
             // MAUI / Blazor Hybrid Context
             // @ts-ignore
             const result = await window.DotNet.invokeMethodAsync(
-                'EmotionTracker',
+                'Maral',
                 'ExportDataAsFile',
                 dataStr,
                 fileName

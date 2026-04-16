@@ -62,25 +62,23 @@ const SettingsToolbox: React.FC<SettingsToolboxProps> = ({
                     )}
 
                     {/* Profile Manager Button */}
-                    <button 
+                    {/* <button 
                         onClick={() => { onOpenProfileManager(); setIsOpen(false); }}
                         className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-bgMain text-textMain/80 hover:text-primary transition-all text-sm font-medium"
                     >
                         <Users size={18} />
                         {t('manageProfiles')}
-                    </button>
+                    </button> */}
 
-                    <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
-
-                    <button 
+                    {/* <button 
                         onClick={() => { onDoctorExport(); setIsOpen(false); }}
                         className="flex items-center gap-3 w-full p-3 rounded-xl bg-gradient-to-r from-primary/10 to-transparent hover:bg-primary/20 text-primary transition-all text-sm font-bold"
                     >
                         <Stethoscope size={18} />
                         {t('exportDoctorBtn')}
-                    </button>
+                    </button> */}
 
-                    <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
+                    {/* <div className="h-px bg-slate-200 dark:bg-white/5 my-1" /> */}
 
                     <button 
                         onClick={() => { toggleTheme(); }}
@@ -97,28 +95,24 @@ const SettingsToolbox: React.FC<SettingsToolboxProps> = ({
                         <Languages size={18} />
                         {language === 'fa' ? 'English' : 'فارسی'}
                     </button>
-
-                    <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
                     
-                    <button 
+                    {/* <button 
                         onClick={() => { onImportClick(); setIsOpen(false); }}
                         className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-bgMain text-textMain/80 hover:text-energyHigh transition-all text-sm font-medium"
                     >
                         <Upload size={18} />
                         {t('importBtn')}
-                    </button>
+                    </button> */}
 
-                    <button 
+                    {/* <button 
                         onClick={() => { onExport(); setIsOpen(false); }}
                         className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-bgMain text-textMain/80 hover:text-energyHigh transition-all text-sm font-medium opacity-60"
                         title="Legacy JSON format"
                     >
                         <Download size={18} />
                         {t('exportBtn')} (Legacy)
-                    </button>
+                    </button> */}
                     
-                     <div className="h-px bg-slate-200 dark:bg-white/5 my-1" />
-
                      <button 
                         onClick={() => { onDeleteData(); setIsOpen(false); }}
                         className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-500/10 text-red-500 transition-all text-sm font-bold"

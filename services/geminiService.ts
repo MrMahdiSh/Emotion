@@ -1,76 +1,73 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { JournalEntry, InsightResponse } from "../types";
 
-const apiKey = process.env.API_KEY || "";
-const ai = new GoogleGenAI({ apiKey });
+export const analyzeJournalEntries = async (
+  entries: JournalEntry[],
+  language: "en" | "fa"
+): Promise<InsightResponse> => {
 
-export const analyzeJournalEntries = async (entries: JournalEntry[], language: 'en' | 'fa'): Promise<InsightResponse> => {
-  const isPersian = language === 'fa';
-  
+  const isPersian = language === "fa";
+
   if (!entries || entries.length === 0) {
     return {
-      summary: isPersian ? "هنوز هیچ موردی برای تحلیل وجود ندارد." : "No entries to analyze yet.",
+      summary: isPersian
+        ? "هنوز هیچ موردی برای تحلیل وجود ندارد."
+        : "No entries to analyze yet.",
       patterns: [],
-      advice: isPersian ? "برای دریافت بینش هوشمند، احساسات خود را ثبت کنید." : "Start logging your emotions to get AI-powered insights."
+      advice: isPersian
+        ? "برای دریافت بینش، احساسات خود را ثبت کنید."
+        : "Start logging your emotions to get insights."
     };
   }
 
-  // We only send the last 20 entries to avoid huge token usage and keep context relevant
-  const recentEntries = entries.slice(0, 20).map(e => ({
-    date: e.date,
-    trigger: e.action,
-    emotion: e.emotion,
-    my_reaction: e.reaction,
-    outcome: e.result,
-    intensity: e.intensity
-  }));
+  // only recent 20
+  const recentEntries = entries.slice(0, 20);
 
-  const langName = isPersian ? "Persian (Farsi)" : "English";
+  // ---------- LOCAL ANALYSIS ----------
 
-  const prompt = `
-    You are an expert psychological assistant speaking ${langName}. Analyze the following journal entries from a user.
-    Identify behavioral patterns, emotional triggers, and consequences of their actions.
-    Provide constructive, empathetic advice on how to handle similar situations better in the future.
-    
-    IMPORTANT: The response MUST be in ${langName}.
+  const emotionCount: Record<string, number> = {};
+  const highIntensity: JournalEntry[] = [];
 
-    Journal Entries:
-    ${JSON.stringify(recentEntries, null, 2)}
-  `;
+  for (const e of recentEntries) {
+    emotionCount[e.emotion] = (emotionCount[e.emotion] || 0) + 1;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            summary: { type: Type.STRING, description: `A brief summary of the user's recent emotional state in ${langName}.` },
-            patterns: { 
-              type: Type.ARRAY, 
-              items: { type: Type.STRING }, 
-              description: `List of observed patterns in ${langName}.` 
-            },
-            advice: { type: Type.STRING, description: `Actionable advice for improvement in ${langName}.` }
-          },
-          required: ["summary", "patterns", "advice"]
-        }
-      }
-    });
-
-    const text = response.text;
-    if (!text) throw new Error("No response from AI");
-    
-    return JSON.parse(text) as InsightResponse;
-
-  } catch (error) {
-    console.error("Error analyzing entries:", error);
-    return {
-      summary: isPersian ? "در حال حاضر امکان تحلیل داده‌ها وجود ندارد." : "Could not generate analysis at this time.",
-      patterns: isPersian ? ["خطا در اتصال به سرویس هوش مصنوعی."] : ["Error connecting to AI service."],
-      advice: isPersian ? "لطفاً بعداً دوباره تلاش کنید." : "Please try again later."
-    };
+    if (e.intensity >= 7) {
+      highIntensity.push(e);
+    }
   }
+
+  // most frequent emotion
+  const topEmotion =
+    Object.entries(emotionCount).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+  const patterns: string[] = [];
+
+  if (topEmotion) {
+    patterns.push(
+      isPersian
+        ? `احساس غالب شما: ${topEmotion}`
+        : `Most frequent emotion: ${topEmotion}`
+    );
+  }
+
+  if (highIntensity.length > 0) {
+    patterns.push(
+      isPersian
+        ? "چند رویداد با شدت احساسی بالا ثبت شده است."
+        : "Several high intensity emotional events detected."
+    );
+  }
+
+  // ---------- RESPONSE ----------
+
+  return {
+    summary: isPersian
+      ? `در این مدت بیشتر احساس ${topEmotion || "متغیر"} داشته‌اید.`
+      : `Recently you mostly felt ${topEmotion || "mixed emotions"}.`,
+
+    patterns,
+
+    advice: isPersian
+      ? "قبل از واکنش، چند نفس عمیق بکشید و محرک‌های تکراری را شناسایی کنید."
+      : "Pause before reacting, identify repeating triggers, and practice reflection."
+  };
 };
