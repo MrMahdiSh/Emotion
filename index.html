@@ -8,11 +8,11 @@
   <script>
     // This dynamically loads the Blazor script so Vite doesn't try to bundle it
     var script = document.createElement('script');
-    script.src = "_framework/blazor.webview.js";
+    // script.src = "_framework/blazor.webview.js";
     script.setAttribute('autostart', 'false'); // Optional, but good practice
     document.head.appendChild(script);
   </script>
-  <script src="public/3.4.17.js"></script>
+  <script src="3.4.17.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -50,7 +50,7 @@
     };
   </script>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Vazirmatn:wght@300;400;600;700&display=swap"
+    href="Fonts/css2.css"
     rel="stylesheet">
   <style>
     :root {
